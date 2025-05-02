@@ -1,314 +1,319 @@
+// Nolanverse Main Script
+// =====================
+// All initialization is now in a single DOMContentLoaded block for performance and clarity.
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Enhanced quotes rotation
+  // --- Quotes Rotation ---
   const quotes = document.querySelectorAll('#quotes .quote-box');
-  let index = 0;
-  quotes[0].classList.add('active');
-
-  function rotateQuotes() {
-    const currentQuote = quotes[index];
-    const nextIndex = (index + 1) % quotes.length;
-    const nextQuote = quotes[nextIndex];
-
-    // Fade out current quote
-    currentQuote.style.animation = 'fadeOut 0.5s forwards';
-    currentQuote.classList.remove('active');
-
-    // Fade in next quote
-    setTimeout(() => {
-      nextQuote.style.animation = 'fadeIn 0.5s forwards';
-      nextQuote.classList.add('active');
-      index = nextIndex;
-    }, 500);
-
-    setTimeout(rotateQuotes, 5000);
+  let quoteIndex = 0;
+  if (quotes.length) {
+    quotes[0].classList.add('active');
+    setInterval(() => {
+      quotes[quoteIndex].classList.remove('active');
+      quoteIndex = (quoteIndex + 1) % quotes.length;
+      quotes[quoteIndex].classList.add('active');
+    }, 5000);
   }
 
-  setTimeout(rotateQuotes, 5000);
-
-  // Recommendation cycle
+  // --- Recommendation Cycle (if present) ---
   const movieRecommendations = [
-    {
-      title: "The Prestige",
-      category: "Mystery/Thriller",
-      rating: "8.5/10",
-      year: "2006"
-    },
-    {
-      title: "Inception",
-      category: "Sci-Fi/Action",
-      rating: "8.8/10",
-      year: "2010"
-    },
-    {
-      title: "Interstellar",
-      category: "Sci-Fi/Adventure",
-      rating: "8.6/10",
-      year: "2014"
-    },
-    // ...add more movies with details
+    { title: "The Prestige", category: "Mystery/Thriller", rating: "8.5/10", year: "2006" },
+    { title: "Inception", category: "Sci-Fi/Action", rating: "8.8/10", year: "2010" },
+    { title: "Interstellar", category: "Sci-Fi/Adventure", rating: "8.6/10", year: "2014" }
   ];
-
   const recommendationBox = document.querySelector('.recommendation-box');
-  let currentIndex = 0;
-
-  function updateRecommendation(movie) {
-    recommendationBox.innerHTML = `
-      <div class="movie-card">
-        <h3>${movie.title}</h3>
-        <div class="movie-details">
-          <span class="category">${movie.category}</span>
-          <span class="rating">⭐ ${movie.rating}</span>
-          <span class="year">${movie.year}</span>
+  let recIndex = 0;
+  if (recommendationBox) {
+    function updateRecommendation(movie) {
+      recommendationBox.innerHTML = `
+        <div class="movie-card">
+          <h3>${movie.title}</h3>
+          <div class="movie-details">
+            <span class="category">${movie.category}</span>
+            <span class="rating">⭐ ${movie.rating}</span>
+            <span class="year">${movie.year}</span>
+          </div>
         </div>
-      </div>
-    `;
-  }
-
-  function cycleMovieRecommendations() {
-    recommendationBox.classList.add('fade');
-    
-    setTimeout(() => {
-      currentIndex = (currentIndex + 1) % movieRecommendations.length;
-      updateRecommendation(movieRecommendations[currentIndex]);
-      
-      recommendationBox.classList.remove('fade');
-      recommendationBox.classList.add('glow');
-      
-      setTimeout(() => {
-        recommendationBox.classList.remove('glow');
-      }, 2000);
-    }, 500);
-  }
-
-  setInterval(cycleMovieRecommendations, 3000);
-
-  // Toggle video mute/unmute on click
-  const video = document.getElementById('bg-video');
-  video.muted = true; // Start muted to comply with browser policies
-  video.addEventListener('click', function() {
-    video.muted = !video.muted;
-  });
-
-  const videoControls = document.createElement('div');
-  videoControls.className = 'video-controls';
-  
-  videoControls.innerHTML = `
-    <button class="mute-btn">
-      <i class="fas fa-volume-mute"></i>
-    </button>
-    <button class="pause-btn">
-      <i class="fas fa-pause"></i>
-    </button>
-  `;
-
-  video.parentElement.appendChild(videoControls);
-
-  // Video controls functionality
-  const muteBtn = videoControls.querySelector('.mute-btn');
-  const pauseBtn = videoControls.querySelector('.pause-btn');
-
-  muteBtn.addEventListener('click', () => {
-    video.muted = !video.muted;
-    muteBtn.innerHTML = video.muted ? 
-      '<i class="fas fa-volume-mute"></i>' : 
-      '<i class="fas fa-volume-up"></i>';
-  });
-
-  pauseBtn.addEventListener('click', () => {
-    if (video.paused) {
-      video.play();
-      pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    } else {
-      video.pause();
-      pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+      `;
     }
-  });
+    updateRecommendation(movieRecommendations[0]);
+    setInterval(() => {
+      recIndex = (recIndex + 1) % movieRecommendations.length;
+      updateRecommendation(movieRecommendations[recIndex]);
+    }, 3000);
+  }
 
-  // Smooth scroll for navigation links
+  // --- Video Controls ---
+  const video = document.getElementById('bg-video');
+  if (video) {
+    video.muted = true;
+    video.addEventListener('click', () => video.muted = !video.muted);
+    const videoControls = document.createElement('div');
+    videoControls.className = 'video-controls';
+    videoControls.innerHTML = `
+      <button class="mute-btn"><i class="fas fa-volume-mute"></i></button>
+      <button class="pause-btn"><i class="fas fa-pause"></i></button>
+    `;
+    video.parentElement.appendChild(videoControls);
+    const muteBtn = videoControls.querySelector('.mute-btn');
+    const pauseBtn = videoControls.querySelector('.pause-btn');
+    muteBtn.addEventListener('click', () => {
+      video.muted = !video.muted;
+      muteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    });
+    pauseBtn.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      } else {
+        video.pause();
+        pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+      }
+    });
+  }
+
+  // --- Smooth Scroll for Navigation ---
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
       e.preventDefault();
       const target = document.querySelector(this.getAttribute('href'));
-      
-      if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 
-  // Animate elements on scroll
+  // --- Animate Elements on Scroll ---
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate');
-      }
+      if (entry.isIntersecting) entry.target.classList.add('animate');
     });
   }, { threshold: 0.1 });
+  document.querySelectorAll('.service-box, .quote-box, .news-card').forEach(el => observer.observe(el));
 
-  // Observe elements
-  document.querySelectorAll('.service-box, .quote-box, .news-card').forEach(el => {
-    observer.observe(el);
-  });
-
-  const quoteElements = document.querySelectorAll('.quote-box');
-  const quoteNav = document.querySelector('.quote-nav');
-  let currentQuote = 0;
-  
-  // Create navigation dots
-  quoteElements.forEach((_, index) => {
-      const button = document.createElement('button');
-      button.addEventListener('click', () => showQuote(index));
-      quoteNav.appendChild(button);
-  });
-  
-  const navButtons = quoteNav.querySelectorAll('button');
-  
-  function showQuote(index) {
-      quoteElements.forEach((quote, i) => {
-          quote.classList.remove('active', 'inactive');
-          if (i < index) {
-              quote.classList.add('inactive');
-          } else if (i > index) {
-              quote.classList.add('next');
-          }
-      });
-      
-      quoteElements[index].classList.add('active');
-      
-      // Update navigation dots
-      navButtons.forEach((btn, i) => {
-          btn.classList.toggle('active', i === index);
-      });
-      
-      currentQuote = index;
+  // --- Search Functionality ---
+  const searchInput = document.getElementById('movieSearch');
+  const searchBtn = document.querySelector('.search-btn');
+  const movieElements = document.querySelectorAll('.service-box, .category-table li');
+  function performSearch() {
+    const searchTerm = searchInput.value.toLowerCase();
+    movieElements.forEach(element => {
+      const title = element.textContent.toLowerCase();
+      element.style.display = title.includes(searchTerm) ? '' : 'none';
+    });
   }
-  
-  // Auto-advance quotes
-  function autoAdvance() {
-      let nextQuote = currentQuote + 1;
-      if (nextQuote >= quotes.length) {
-          nextQuote = 0;
+  if (searchInput && searchBtn) {
+    searchInput.addEventListener('input', performSearch);
+    searchBtn.addEventListener('click', performSearch);
+  }
+
+  // --- Trailer Modal Functionality ---
+  document.querySelectorAll('.watch-trailer').forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      const movieTitle = this.closest('.service-box').querySelector('h2').textContent;
+      const trailerUrls = {
+        'Inception': 'https://www.youtube.com/embed/YoHD9XEInc0',
+        'Interstellar': 'https://www.youtube.com/embed/zSWdZVtXT7E',
+        'The Dark Knight': 'https://www.youtube.com/embed/EXeTwQWrcwY',
+        'Dunkirk': 'https://www.youtube.com/embed/F-eMt3SrfFU',
+        'Tenet': 'https://www.youtube.com/embed/AZGcmvrTX9M'
+      };
+      if (trailerUrls[movieTitle]) {
+        const modal = document.createElement('div');
+        modal.className = 'trailer-modal';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <iframe width="560" height="315" src="${trailerUrls[movieTitle]}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
       }
-      showQuote(nextQuote);
-  }
-  
-  // Show first quote initially
-  showQuote(0);
-  
-  // Auto-advance every 5 seconds
-  setInterval(autoAdvance, 5000);
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const quotes = document.querySelectorAll('.quote-box');
-    let currentQuote = 0;
-
-    // Hide all quotes except first
-    quotes.forEach((quote, index) => {
-        if (index !== 0) quote.style.display = 'none';
-    });
-
-    // Show next quote every 5 seconds
-    setInterval(() => {
-        quotes[currentQuote].style.display = 'none';
-        currentQuote = (currentQuote + 1) % quotes.length;
-        quotes[currentQuote].style.display = 'block';
-    }, 5000);
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  const quotes = document.getElementById('quotes');
-  const socialLinks = document.querySelectorAll('.social-links a');
-
-  socialLinks.forEach(link => {
-    link.addEventListener('mouseenter', () => {
-      const color = link.getAttribute('data-color');
-      quotes.style.background = `linear-gradient(135deg, #000000 0%, ${color} 100%)`;
-    });
-
-    link.addEventListener('mouseleave', () => {
-      quotes.style.background = 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)';
     });
   });
-});
 
-document.addEventListener('DOMContentLoaded', function() {
-    const slider = document.querySelector('.content');
-    const slides = document.querySelectorAll('.service-box');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
-    
+  // --- Newsletter Functionality ---
+  const newsletterForm = document.querySelector('.newsletter-form');
+  if (newsletterForm) {
+    newsletterForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = this.querySelector('input[type="email"]').value;
+      // In a real app, you would send this to your backend
+      const successMessage = document.createElement('div');
+      successMessage.className = 'success-message';
+      successMessage.textContent = 'Thank you for subscribing!';
+      this.appendChild(successMessage);
+      this.reset();
+      setTimeout(() => { successMessage.remove(); }, 3000);
+    });
+  }
+
+  // --- Watchlist Functionality ---
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('add-to-watchlist')) {
+      const movieCard = e.target.closest('.movie-card');
+      const movieTitle = movieCard.querySelector('h3').textContent;
+      e.target.textContent = 'Added to Watchlist';
+      e.target.style.background = '#25D366';
+      setTimeout(() => {
+        e.target.textContent = '+ Watchlist';
+        e.target.style.background = '';
+      }, 2000);
+    }
+  });
+
+  // --- Streaming Section Functionality ---
+  const streamingFrame = document.querySelector('.streaming-frame iframe');
+  const fullscreenBtn = document.querySelector('.fullscreen-btn');
+  const refreshBtn = document.querySelector('.refresh-btn');
+  // Check if the iframe is cross-origin
+  let isCrossOrigin = false;
+  try {
+    streamingFrame.contentWindow.location.href;
+  } catch (e) {
+    isCrossOrigin = true;
+  }
+  if (fullscreenBtn && streamingFrame) {
+    if (isCrossOrigin) {
+      fullscreenBtn.disabled = true;
+      fullscreenBtn.title = 'Fullscreen is not available for this embedded content.';
+    } else {
+      fullscreenBtn.addEventListener('click', function() {
+        if (streamingFrame.requestFullscreen) {
+          streamingFrame.requestFullscreen();
+        } else if (streamingFrame.webkitRequestFullscreen) {
+          streamingFrame.webkitRequestFullscreen();
+        } else if (streamingFrame.mozRequestFullScreen) {
+          streamingFrame.mozRequestFullScreen();
+        } else if (streamingFrame.msRequestFullscreen) {
+          streamingFrame.msRequestFullscreen();
+        }
+      });
+    }
+  }
+  if (refreshBtn && streamingFrame) {
+    refreshBtn.addEventListener('click', function() {
+      const currentSrc = streamingFrame.src;
+      streamingFrame.src = '';
+      setTimeout(() => {
+        streamingFrame.src = currentSrc;
+      }, 100);
+    });
+  }
+
+  // --- Social Links Hover for Quotes Section ---
+  const quotesSection = document.getElementById('quotes');
+  const socialLinks = document.querySelectorAll('.social-links a');
+  if (quotesSection && socialLinks.length) {
+    socialLinks.forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        const color = link.getAttribute('data-color');
+        quotesSection.style.background = `linear-gradient(135deg, #000000 0%, ${color} 100%)`;
+      });
+      link.addEventListener('mouseleave', () => {
+        quotesSection.style.background = 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)';
+      });
+    });
+  }
+
+  // --- Slider Functionality ---
+  const slider = document.querySelector('.slider-container .content');
+  const slides = document.querySelectorAll('.slider-container .service-box');
+  const prevBtn = document.querySelector('.slider-nav.prev-btn');
+  const nextBtn = document.querySelector('.slider-nav.next-btn');
+  if (slider && slides.length && prevBtn && nextBtn) {
     let currentIndex = 0;
     const slidesToShow = window.innerWidth < 768 ? 1 : 3;
-    const slideWidth = slides[0].offsetWidth + 30; // Including gap
-    
+    const slideWidth = slides[0].offsetWidth + 30;
+    function updateSliderPosition() {
+      const translateX = -currentIndex * slideWidth;
+      slider.style.transform = `translateX(${translateX}px)`;
+    }
+    function updateButtonStates() {
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex >= slides.length - slidesToShow;
+      prevBtn.style.opacity = prevBtn.disabled ? '0.5' : '1';
+      nextBtn.style.opacity = nextBtn.disabled ? '0.5' : '1';
+    }
+    prevBtn.addEventListener('click', () => {
+      currentIndex = Math.max(currentIndex - 1, 0);
+      updateSliderPosition();
+      updateButtonStates();
+    });
+    nextBtn.addEventListener('click', () => {
+      currentIndex = Math.min(currentIndex + 1, slides.length - slidesToShow);
+      updateSliderPosition();
+      updateButtonStates();
+    });
+    window.addEventListener('resize', () => {
+      currentIndex = 0;
+      updateSliderPosition();
+      updateButtonStates();
+    });
+    // Touch/swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    slider.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+    slider.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0 && currentIndex < slides.length - slidesToShow) {
+          currentIndex++;
+        } else if (diff < 0 && currentIndex > 0) {
+          currentIndex--;
+        }
+        updateSliderPosition();
+        updateButtonStates();
+      }
+    });
     // Initialize
     updateSliderPosition();
     updateButtonStates();
-    
-    // Event Listeners
-    prevBtn.addEventListener('click', () => {
-        currentIndex = Math.max(currentIndex - 1, 0);
-        updateSliderPosition();
-        updateButtonStates();
-    });
-    
-    nextBtn.addEventListener('click', () => {
-        currentIndex = Math.min(currentIndex + 1, slides.length - slidesToShow);
-        updateSliderPosition();
-        updateButtonStates();
-    });
-    
-    // Window resize handler
-    window.addEventListener('resize', () => {
-        currentIndex = 0;
-        updateSliderPosition();
-        updateButtonStates();
-    });
-    
-    function updateSliderPosition() {
-        const translateX = -currentIndex * slideWidth;
-        slider.style.transform = `translateX(${translateX}px)`;
-    }
-    
-    function updateButtonStates() {
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex >= slides.length - slidesToShow;
-        
-        prevBtn.style.opacity = prevBtn.disabled ? '0.5' : '1';
-        nextBtn.style.opacity = nextBtn.disabled ? '0.5' : '1';
-    }
+  }
 
-    // Optional: Add touch/swipe support
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    slider.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-    
-    slider.addEventListener('touchend', e => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    });
-    
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        const diff = touchStartX - touchEndX;
-        
-        if (Math.abs(diff) > swipeThreshold) {
-            if (diff > 0 && currentIndex < slides.length - slidesToShow) {
-                // Swipe left
-                currentIndex++;
-            } else if (diff < 0 && currentIndex > 0) {
-                // Swipe right
-                currentIndex--;
+  // Show streaming controls only when streaming section is in view (mobile)
+  if (window.innerWidth <= 600) {
+    const streamingSection = document.getElementById('streaming-section');
+    const streamingControls = document.querySelector('.streaming-controls');
+    if (streamingSection && streamingControls) {
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              streamingControls.classList.add('visible');
+            } else {
+              streamingControls.classList.remove('visible');
             }
-            updateSliderPosition();
-            updateButtonStates();
-        }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(streamingSection);
     }
+  }
+
+  document.querySelectorAll('.category-table td ul').forEach(ul => {
+    const items = ul.querySelectorAll('li');
+    let visibleCount = 10;
+    // Show first 10
+    items.forEach((li, i) => {
+      if (i < visibleCount) li.classList.add('visible');
+    });
+
+    ul.addEventListener('scroll', function() {
+      if (ul.scrollTop + ul.clientHeight >= ul.scrollHeight - 5) {
+        // Show 5 more each time you reach the bottom
+        let nextCount = visibleCount + 5;
+        items.forEach((li, i) => {
+          if (i < nextCount) li.classList.add('visible');
+        });
+        visibleCount = nextCount;
+      }
+    });
+  });
 });
